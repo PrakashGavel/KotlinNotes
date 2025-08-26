@@ -1,6 +1,7 @@
 package com.example.kotlinnotes.start
 
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -26,9 +27,16 @@ fun main() : Unit = runBlocking{
 //    }
 //    job.start()
 
-    launch(start = CoroutineStart.ATOMIC) {
-        println("first")
+//    val job = launch(start = CoroutineStart.ATOMIC) {
+//        println("first")
+//        delay(5000)
+//        println("end")
+//    }
+//    job.cancel()
+
+    val job = launch(start = CoroutineStart.UNDISPATCHED, context = Dispatchers.IO) {
+        println("first ${Thread.currentThread().name}")
         delay(5000)
-        println("end")
+        println("end ${Thread.currentThread().name}")
     }
 }
