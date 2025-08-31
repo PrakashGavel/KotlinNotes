@@ -2,74 +2,39 @@ package com.example.kotlinnotes
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.withContext
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.kotlinnotes.ui.theme.KotlinNotesTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-class MyViewModel : ViewModel(){
-    init{
-        // ViewModel Scope: It is used to launch coroutines that are tied to the lifecycle of a ViewModel. It is used for tasks that need to survive configuration changes.
-        viewModelScope.launch {
-            delay(1000)
-            println("Task in ViewModelScope completed")
-        }
-    }
-}
 
+// Dagger-Hilt for Dependency Injection
+// Dagger-Hilt is a dependency injection library from google for Android that reduces the boilerplate of doing manual dependency injection in your project.
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Set the layout for this activity
-
-        // lifecycle Scope: It is used to launch coroutines that are tied to the lifecycle of an Activity or Fragment. It is used for tasks that need to be cancelled when the Activity or Fragment is destroyed.
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                delay(500)
-                println("Task in LifecycleScope completed")
+        // This is dependency injection because we are injecting the dependency of Test class into MainActivity class, Test class depends on this name parameter.
+        // val test = Test("Prakash")
+        setContent {
+            KotlinNotesTheme {
+                val viewModel = hiltViewModel<MyViewModel>()
             }
         }
     }
-
-    // Main Scope: It is used to launch coroutines that run on the main thread. It is used for UI related tasks.
-    override fun onDestroy() {
-        super.onDestroy()
-        // Cancel all coroutines launched in the main scope
-        cancel()
-    }
 }
 
-// Coroutine Scope: It manages the lifecycle of coroutines, all the coroutines launching (created) in a scope will be cancelled when the scope is cancelled..
-// 4 types: Global Scope, Main Scope, Lifecycle Scope, ViewModel Scope
 
-fun main(): Unit = runBlocking {
-    // Global Scope: It is used to launch top-level coroutines which are operating on the whole application lifetime. This is not recommended to use it in android as it may cause memory leaks.
-    GlobalScope.launch {
-        delay(200)
-        println("This is a task from GlobalScope")
-    }
-    Thread.sleep(1000)
-
-    // custom coroutine scope
-    val job = Job()
-    val scope = CoroutineScope(job + Dispatchers.Main)
-
-    scope.launch {
-        delay(300)
-        println("Task in custom CoroutineScope executed")
-    }
-    // perform operations
-
-    delay(500) // wait to see coroutine output
-    scope.cancel()
-    println("Custom scope canceled")
-}
+//class Test(val name: String){
+//    fun printName(){
+//        println("Name: $name")
+//    }
+//}
